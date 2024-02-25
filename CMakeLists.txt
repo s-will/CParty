@@ -21,7 +21,7 @@ set(SOURCE
     VM_final.h VM_final.cpp
     h_common.h h_common.cpp 
     hfold_validation.h hfold_validation.cpp 
-    hfold.h HFold.cpp
+    hfold.h CParty.cpp
 )
 
 # pass SIMFOLD_HOME to binary

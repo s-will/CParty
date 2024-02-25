@@ -25,7 +25,11 @@
 #include "hfold_validation.h"
 #include <getopt.h>
 #include <unistd.h>
+#include <cmath>
 
+double ensemble(double energy){
+	return log(energy)*310.15*1.98717/-1000;
+}
 
 void printUsage();
 
@@ -254,7 +258,9 @@ int main (int argc, char *argv[])
 	}else{
 		printf ("Seq: %s\n", sequence);
 		printf ("Partition Function: %Lf\n", energy);
-        //printf ("RES: %s  %.2lf\n", structure, energy);
+		printf ("Ensemble: %lf\n",ensemble(energy));
+
+        // printf ("Ensemble: %s  %.2lf\n", structure, energy);
 	}
 
     free(inputPath);
