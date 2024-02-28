@@ -253,17 +253,18 @@ PARAMTYPE s_internal_loop::compute_energy (int i, int j)
 pf_t s_internal_loop::compute_energy_restricted (int i, int j, str_features *fres)
 // computes the MFE of the structure closed by a restricted internal loop closed by (i,j)
 // Luke Sep 2023 need to sum all possible internal loops for partition function
+// Mateo 2024 Changed the for loop bounds
 {
 
-    int ip, jp, minq;
+    int ip, jp, minj;
     PARAMTYPE mmin;
     pf_t ttmp;
     PARAMTYPE penalty_size, asym_penalty, ip_jp_energy, i_j_energy, en;
     int branch1, branch2, l;
     // Luke 2023 sum all energy and return it here
     pf_t d2_energy_il = 0;
-
-    for (ip = i+1; ip <= MIN(j-2,i+MAXLOOP+1) ; ip++)  // the -TURN shouldn't be there
+    int max_ip = std::min(j-TURN-2,i+MAXLOOP+1);
+    for (ip = i+1; ip <= max_ip ; ++ip)  // the -TURN shouldn't be there
     {
         // Hosna, August 28, 2012
 		// TODO: cannot understand why we have th efollowing calculations, as it makes the following case be missed!
@@ -273,22 +274,20 @@ pf_t s_internal_loop::compute_energy_restricted (int i, int j, str_features *fre
 		// in this example int(5,59,11,27) is falsely missed and is equal to INF
 		// So I am changing it to the be jp=ip+1; jp<j; jp++ instead
         //minq = MAX (j-i+ip-MAXLOOP-2, ip+1);    // without TURN
-		minq = ip+1;
-        for (jp = minq; jp < j; jp++)
+		//minj = ip+3;
+        int min_jp=std::max(ip+TURN+1 + MAXLOOP+2, ip+j-i) - MAXLOOP-2;
+        for (jp = j-1; jp >= min_jp; --jp)
         {
             if (exists_restricted (i,ip,fres) || exists_restricted (jp,j,fres))
                 continue;
             //ttmp = get_energy_str (i, j, ip, jp);
 			// Hosna, March 26, 2012
 			// changed to accommodate non-canonical base pairs in the restricted structure
+            printf("i is %d and j is %d and ip is %d and jp is %d and ttmp is %d\n",i,j,ip,jp,ttmp);
 			ttmp = get_energy_str_restricted (i, j, ip, jp, fres);
             if (ttmp < INF/2){
                 d2_energy_il += ttmp;
             }
-            //if (ttmp < mmin)
-            //{
-             //   mmin = ttmp;
-            //}
         }
     }
     return d2_energy_il;
