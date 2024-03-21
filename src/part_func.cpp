@@ -131,8 +131,6 @@ double W_final_pf::hfold_pf(sparse_tree &tree){
 		W[j] = contributions;
 	}
 
-    // std::cout << "cont:  " << W[n] << std::endl;
-
     double energy = (-log(W[n]))* exp_params_->kT / 1000.0;
     // std::cout << exp_params_->pf_scale << std::endl; = -1 maybe because we don't set a scale?
 
@@ -246,7 +244,7 @@ pf_t W_final_pf::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t j, std::
     pf_t contributions = 0;
     for (cand_pos_t k = i+1; k <= j-3; ++k)
     {
-        contributions += (get_energy_WM(i+1,k-1)*get_energy_WMv(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing); // was sj1,si1
+        contributions += (get_energy_WM(i+1,k-1)*get_energy_WMv(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
         contributions += (get_energy_WM(i+1,k-1)*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
         contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,(k-i)))*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
     }
