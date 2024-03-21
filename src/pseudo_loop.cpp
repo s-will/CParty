@@ -165,7 +165,6 @@ void pseudo_loop::compute_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 		m1 = std::min(m1, static_cast<energy_t>((k-i)*cp_penalty) + get_VP(k,j));
 	}
 
-
 	VPL[ij] = m1;
 
 }
@@ -284,25 +283,25 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 		
 		m6 += ap_penalty + 2*bp_penalty;
 
-		for(cand_pos_t k = max_i_bp+TURN+1; k<j; ++k){
+		for(cand_pos_t k = max_i_bp+1; k<j; ++k){
 			m7 = std::min(m7,get_VP(i+1,k) + get_WIP(k+1,j-1));
 		}
 
 		m7 += ap_penalty + 2*bp_penalty;
 
 		for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-			m8 = get_WIP(i+1,k-1) + get_VPR(k,j-1);
+			m8 =  std::min(m8,get_WIP(i+1,k-1) + get_VPR(k,j-1));
 		}
 
 		m8 += ap_penalty + 2*bp_penalty;
 
-		for(cand_pos_t k = max_i_bp+TURN+1; k<j; ++k){
-			m9 = std::min(m7,get_VPL(i+1,k) + get_WIP(k+1,j-1));
+		for(cand_pos_t k = max_i_bp+1; k<j; ++k){
+			m9 = std::min(m9,get_VPL(i+1,k) + get_WIP(k+1,j-1));
 		}
 
 		m9 += ap_penalty + 2*bp_penalty;
 
-
+		
 
 
 
@@ -311,7 +310,6 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	energy_t vp_iloop = std::min({m4,m5});
 	energy_t vp_split = std::min({m6,m7,m8,m9});
 	energy_t min = std::min({vp_h,vp_iloop,vp_split});
-	
 
 	VP[ij] = min;
 
@@ -550,6 +548,7 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 
 	// finding the min and putting it in BE[iip]
 	BE[iip] = std::min({m1,m2,m3,m4,m5});
+
 }
 
 energy_t pseudo_loop::get_WI(cand_pos_t i, cand_pos_t j){

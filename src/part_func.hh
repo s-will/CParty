@@ -32,7 +32,7 @@ class W_final_pf{
         pf_t get_energy_WMv (cand_pos_t i, cand_pos_t j) { if (i>=j) return 0; cand_pos_t ij = index[i]+j-i; return WMv[ij]; }
         pf_t get_energy_WMp (cand_pos_t i, cand_pos_t j) { if (i>=j) return 0; cand_pos_t ij = index[i]+j-i; return WMp[ij]; }
 
-        pf_t get_energy_WI (cand_pos_t i, cand_pos_t j) { if (i>j) return 0; cand_pos_t ij = index[i]+j-i; return WI[ij]; }
+        pf_t get_energy_WI (cand_pos_t i, cand_pos_t j) { if (i>j) return 1; cand_pos_t ij = index[i]+j-i; return WI[ij]; }
         pf_t get_energy_WIP (cand_pos_t i, cand_pos_t j) { if (i>=j) return 0; cand_pos_t ij = index[i]+j-i; return WIP[ij]; }
         pf_t get_energy_VP (cand_pos_t i, cand_pos_t j) { if (i>=j) return 0; cand_pos_t ij = index[i]+j-i; return VP[ij]; }
         pf_t get_energy_VPL (cand_pos_t i, cand_pos_t j) { if (i>=j) return 0; cand_pos_t ij = index[i]+j-i; return VPL[ij]; }
@@ -109,6 +109,12 @@ class W_final_pf{
 
         void compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_t jp, sparse_tree &tree);
 
+
+        pf_t exp_Extloop(cand_pos_t i, cand_pos_t j);
+
+        pf_t exp_MLstem(cand_pos_t i, cand_pos_t j);
+
+        pf_t exp_Mbloop(cand_pos_t i, cand_pos_t j);
 
         pf_t HairpinE(cand_pos_t i, cand_pos_t j);
 

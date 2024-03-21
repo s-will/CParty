@@ -165,9 +165,8 @@ int main (int argc, char *argv[])
 		sparse_tree tree(structure,n);
 		std::string final_structure = hfold(seq,structure, energy,tree,pk_free,pk_only, dangles);
 		double pf_energy = hfold_pf(seq,tree,pk_free,dangles);
-		std::cout << pf_energy << std::endl;
 		
-		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy);
+		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy,pf_energy);
 		result_list.push_back(result);
 	}
 
@@ -198,7 +197,7 @@ Result::Result_comp result_comp;
 		std::cout << seq << std::endl;
 		if(result_list.size() == 1){
 			// std::cout << "Restricted_" << 0 << ": " << result_list[0].get_restricted() << std::endl;;
-			std::cout << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ")" << std::endl;
+			std::cout << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ") {" << result_list[0].get_pf_energy() << "}" << std::endl;
 		}
 		else{
 			for (int i=0; i < number_of_output; i++) {
