@@ -124,6 +124,7 @@ double W_final_pf::hfold_pf(sparse_tree &tree){
 
 			contributions += acc*get_energy(k,j)*exp_Extloop(k,j);//E_ext_Stem(V->get_energy(k,j),V->get_energy(k+1,j),V->get_energy(k,j-1),V->get_energy(k+1,j-1),S_,params_,k,j,n,tree.tree));
 			if (k == 1 || (tree.weakly_closed(1,k-1) && tree.weakly_closed(k,j))) contributions += acc*get_energy_WMB(k,j)*expPS_penalty;
+
 		}
         if(tree.tree[j].pair < 0) contributions += W[j-1];
         if(!tree.weakly_closed(1,j)) W[j] = 0;
@@ -202,7 +203,7 @@ pf_t W_final_pf::compute_internal_restricted(cand_pos_t i, cand_pos_t j, std::ve
 }
 
 void W_final_pf::compute_WMv_WMp(cand_pos_t i, cand_pos_t j, std::vector<Node> &tree){
-	if(j-i+1<4) return;
+	if(j-i-1<TURN) return;
 	cand_pos_t ij = index[(i)]+(j)-(i);
 	cand_pos_t ijminus1 = index[(i)]+(j)-1-(i);
 
@@ -230,10 +231,10 @@ void W_final_pf::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, spars
 	for (cand_pos_t k=i; k < j -TURN-1; k++)
 	{
 		bool can_pair = tree.up[k-1] >= (k-i);
-		if(can_pair) contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,(k-i)))*get_energy_WMv(k,j));
-		if(can_pair) contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,(k-i)))*get_energy_WMp(k,j));
-		contributions += (get_energy_WM(i,k-1)*get_energy_WMv(k,j));
-		contributions += (get_energy_WM(i,k-1)*get_energy_WMp(k,j));
+		if(can_pair) contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,(k-i)))*get_energy(k,j)*exp_MLstem(k,j));
+		if(can_pair) contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,(k-i)))*get_energy_WMB(k,j)*expPSM_penalty*expb_penalty);
+		contributions += (get_energy_WM(i,k-1)*get_energy(k,j)*exp_MLstem(k,j));
+		contributions += (get_energy_WM(i,k-1)*get_energy_WMB(k,j)*expPSM_penalty*expb_penalty);
 	}
 	if (tree.tree[j].pair < 0) contributions += WM[ijminus1]*exp_params_->expMLbase;
 
@@ -246,7 +247,7 @@ pf_t W_final_pf::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t j, std::
     {
         contributions += (get_energy_WM(i+1,k-1)*get_energy_WMv(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
         contributions += (get_energy_WM(i+1,k-1)*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
-        contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,(k-i)))*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
+        contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,(k-i-1)))*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
     }
 
     return contributions;
