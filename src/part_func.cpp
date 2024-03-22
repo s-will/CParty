@@ -45,6 +45,8 @@ W_final_pf::W_final_pf(std::string seq, bool pk_free, int dangle, double energy)
     index.resize(n+1);
 	scale.resize(n+1);
 	expMLbase.resize(n+1);
+	expcp_pen.resize(n+1);
+	expPUP_pen.resize(n+1);
     cand_pos_t total_length = ((n+1) *(n+2))/2;
     index[1] = 0;
     for (cand_pos_t i=2; i <= n; i++)
@@ -57,7 +59,6 @@ W_final_pf::W_final_pf(std::string seq, bool pk_free, int dangle, double energy)
     // W.resize(n+1,1);
 
     // PK
-    WI.resize(total_length,1);
     WIP.resize(total_length,0);
     VP.resize(total_length,0);
     VPL.resize(total_length,0);
@@ -71,6 +72,8 @@ W_final_pf::W_final_pf(std::string seq, bool pk_free, int dangle, double energy)
     rescale_pk_globals();
 	exp_params_rescale(energy);
 	W.resize(n+1,scale[1]);
+	WI.resize(total_length,scale[1]);
+
 
 }
 
@@ -95,13 +98,18 @@ void W_final_pf::exp_params_rescale(double mfe){
     this->scale[1]     = (pf_t)(1. / exp_params_->pf_scale);
     this->expMLbase[0] = 1;
     this->expMLbase[1] = (pf_t)(exp_params_->expMLbase / exp_params_->pf_scale);
+
 	this->expcp_pen[0] = 1;
-	this->expcp_pen[0] = (pf_t)(expcp_penalty / exp_params_->pf_scale);
+	this->expcp_pen[1] = (pf_t)(expcp_penalty / exp_params_->pf_scale);
+	this->expPUP_pen[0] = 1;
+	this->expPUP_pen[1] = (pf_t)(expPUP_penalty / exp_params_->pf_scale);
 
     for (cand_pos_t i = 2; i <= this->n; i++) {
       this->scale[i]     = this->scale[i / 2] * this->scale[i - (i / 2)];
       this->expMLbase[i] = (pf_t)pow(exp_params_->expMLbase, (double)i) * this->scale[i];
 	  this->expcp_pen[i] = (pf_t)pow(expcp_penalty, (double)i) * this->scale[i];
+	  this->expPUP_pen[i] = (pf_t)pow(expPUP_penalty, (double)i) * this->scale[i];
+
     }
 }
 
@@ -159,12 +167,15 @@ double W_final_pf::hfold_pf(sparse_tree &tree){
 
 		}
         if(tree.tree[j].pair < 0) contributions += W[j-1]*scale[1];
+		// if(tree.tree[j].pair < 0) contributions += W[j-1];
+
         if(!tree.weakly_closed(1,j)) contributions = 0;
 
 		W[j] = contributions;
 	}
 
     double energy = ((-log(W[n]) - n * log(exp_params_->pf_scale)) * exp_params_->kT / 1000.0);
+	// double energy = -log(W[n])*exp_params_->kT / 1000.0;
 
     return energy;
 }
@@ -253,6 +264,8 @@ void W_final_pf::compute_WMv_WMp(cand_pos_t i, cand_pos_t j, std::vector<Node> &
 	{
 		WMv_contributions += (WMv[ijminus1]*expMLbase[1]);
 		WMp_contributions += (WMp[ijminus1]*expMLbase[1]);
+		// WMv_contributions += (WMv[ijminus1]*exp_params_->expMLbase);
+		// WMp_contributions += (WMp[ijminus1]*exp_params_->expMLbase);
 	}
     WMv[ij] = WMv_contributions;
     WMp[ij] = WMp_contributions;
@@ -269,10 +282,14 @@ void W_final_pf::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, spars
 		bool can_pair = tree.up[k-1] >= (k-i);
 		if(can_pair) contributions += (static_cast<pf_t>(expMLbase[k-i])*get_energy(k,j)*exp_MLstem(k,j));
 		if(can_pair) contributions += (static_cast<pf_t>(expMLbase[k-i])*get_energy_WMB(k,j)*expPSM_penalty*expb_penalty);
+		// if(can_pair) contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,k-i))*get_energy(k,j)*exp_MLstem(k,j));
+		// if(can_pair) contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,k-i))*get_energy_WMB(k,j)*expPSM_penalty*expb_penalty);
 		contributions += (get_energy_WM(i,k-1)*get_energy(k,j)*exp_MLstem(k,j));
 		contributions += (get_energy_WM(i,k-1)*get_energy_WMB(k,j)*expPSM_penalty*expb_penalty);
 	}
+	// if (tree.tree[j].pair < 0) contributions += WM[ijminus1]*expMLbase[1];
 	if (tree.tree[j].pair < 0) contributions += WM[ijminus1]*exp_params_->expMLbase;
+
 
     WM[ij] = contributions;
 }
@@ -283,7 +300,9 @@ pf_t W_final_pf::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t j, std::
     {
         contributions += (get_energy_WM(i+1,k-1)*get_energy_WMv(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
         contributions += (get_energy_WM(i+1,k-1)*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
-        contributions += (static_cast<pf_t>(expMLbase[k-i-1])*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
+        contributions += (expMLbase[k-i-1]*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
+		// contributions += (static_cast<pf_t>(pow(exp_params_->expMLbase,k-i-1))*get_energy_WMp(k,j-1)*exp_Mbloop(i,j)*exp_params_->expMLclosing);
+
     }
 
 	contributions *=scale[2];
@@ -356,7 +375,8 @@ void W_final_pf::compute_WI(cand_pos_t i,cand_pos_t j,sparse_tree &tree){
     cand_pos_t ij = index[i]+j-i;
     pf_t contributions = 0;
     if(i==j){
-        WI[ij] = expPUP_penalty;
+        // WI[ij] = expPUP_pen[1];
+		WI[ij] = expPUP_penalty;
         return;
     }
     contributions += (get_energy(i,j)*expPPS_penalty);
@@ -366,7 +386,8 @@ void W_final_pf::compute_WI(cand_pos_t i,cand_pos_t j,sparse_tree &tree){
         contributions += (get_energy_WI(i,k-1)*get_energy(k,j)*expPPS_penalty);
         contributions += (get_energy_WI(i,k-1)*get_energy_WMB(k,j)*expPSP_penalty*expPPS_penalty);
     }
-    if (tree.tree[j].pair < 0) contributions +=  (get_energy_WI(i,j-1)*expPUP_penalty); 
+    if (tree.tree[j].pair < 0) contributions +=  (get_energy_WI(i,j-1)*expPUP_pen[1]);
+	// if (tree.tree[j].pair < 0) contributions +=  (get_energy_WI(i,j-1)*expPUP_penalty); 
 
 
     WI[ij] = contributions;
@@ -385,9 +406,12 @@ void W_final_pf::compute_WIP(cand_pos_t i,cand_pos_t j,sparse_tree &tree){
         contributions += (get_energy_WIP(i,k-1)*get_energy_WMB(k,j)*expb_penalty*expPSM_penalty);
         if(can_pair) contributions += (expcp_pen[k-i]*get_energy(k,j)*expbp_penalty);
         if(can_pair) contributions += (expcp_pen[k-i]*get_energy_WMB(k,j)*expbp_penalty*expPSM_penalty);
+		// if(can_pair) contributions += (static_cast<pf_t>(pow(expc_penalty,k-i))*get_energy(k,j)*expbp_penalty);
+        // if(can_pair) contributions += (static_cast<pf_t>(pow(expc_penalty,k-i))*get_energy_WMB(k,j)*expbp_penalty*expPSM_penalty);
 
     }
     if (tree.tree[j].pair < 0) contributions += (get_energy_WIP(i,j-1)*expcp_pen[1]);
+	// if (tree.tree[j].pair < 0) contributions += (get_energy_WIP(i,j-1)*expcp_penalty);
     WIP[ij] = contributions;
 
 }
@@ -400,6 +424,8 @@ void W_final_pf::compute_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	cand_pos_t min_Bp_j = std::min((cand_pos_tu) tree.b(i,j), (cand_pos_tu) tree.Bp(i,j));
 	for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
 		contributions += (expcp_pen[k-i]*get_energy_VP(k,j));
+		// contributions += (static_cast<pf_t>(pow(expc_penalty,k-i))*get_energy_VP(k,j));
+
 	}
 
 
@@ -417,6 +443,8 @@ void W_final_pf::compute_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	for(cand_pos_t k = max_i_bp+1; k<j; ++k){
 		contributions += (get_energy_VP(i,k)*get_energy_WIP(k+1,j));
 		contributions += (get_energy_VP(i,k)*expcp_pen[k-i]);
+		// contributions += (get_energy_VP(i,k)*static_cast<pf_t>(pow(expc_penalty,k-i)));
+
 	}
 
 	VPR[ij] = contributions;
@@ -436,20 +464,28 @@ void W_final_pf::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	cand_pos_t bp_ij = tree.bp(i,j);
 	
 	if((tree.tree[i].parent->index) > 0 && (tree.tree[j].parent->index) < (tree.tree[i].parent->index) && Bp_ij >= 0 && B_ij >= 0 && bp_ij < 0){
-        contributions += (get_energy_WI(i+1,Bp_ij-1)*get_energy_WI(B_ij+1,j-1));
+		pf_t m1 = (get_energy_WI(i+1,Bp_ij-1)*get_energy_WI(B_ij+1,j-1));
+		m1 *= scale[2];
+        contributions += m1;
 	}
 
 	if ((tree.tree[i].parent->index) < (tree.tree[j].parent->index) && (tree.tree[j].parent->index) > 0 && b_ij>= 0 && bp_ij >= 0 && Bp_ij < 0){
-        contributions += (get_energy_WI(i+1,b_ij-1)*get_energy_WI(bp_ij+1,j-1));
+		pf_t m2 = (get_energy_WI(i+1,b_ij-1)*get_energy_WI(bp_ij+1,j-1));
+		m2 *= scale[2];
+        contributions += m2;
 	}
 
 	if((tree.tree[i].parent->index) > 0 && (tree.tree[j].parent->index) > 0 && Bp_ij >= 0 && B_ij >= 0  && b_ij >= 0 && bp_ij>= 0){
-        contributions += (get_energy_WI(i+1,Bp_ij-1)*get_energy_WI(B_ij+1,b_ij-1)*get_energy_WI(bp_ij+1,j-1));
+		pf_t m3 = (get_energy_WI(i+1,Bp_ij-1)*get_energy_WI(B_ij+1,b_ij-1)*get_energy_WI(bp_ij+1,j-1));
+		m3 *= scale[2];
+        contributions += m3;
 	}
 
 	pair_type ptype_closingip1jm1 = pair[S_[i+1]][S_[j-1]];
 	if((tree.tree[i+1].pair) < -1 && (tree.tree[j-1].pair) < -1 && ptype_closingip1jm1>0){
-        contributions += (get_e_stP(i,j)*get_energy_VP(i+1,j-1));
+		pf_t vp_stp = (get_e_stP(i,j)*get_energy_VP(i+1,j-1));
+		vp_stp *= scale[2];
+        contributions += vp_stp;
 	}
 
 	cand_pos_t min_borders = std::min((cand_pos_tu) Bp_ij, (cand_pos_tu) b_ij);
@@ -464,7 +500,11 @@ void W_final_pf::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 				pair_type ptype_closingkj = pair[S_[k]][S_[l]];
                 if(k==i+1 && l==j-1) continue; // I have to add or else it will add a stP version and an eintP version to the sum
 				if (tree.tree[l].pair < -1 && ptype_closingkj>0 && (tree.up[(j)-1] >= ((j)-(l)-1))){
-					contributions += (get_e_intP(i,k,l,j)*get_energy_VP(k,l));					
+					pf_t vp_iloop_kl = (get_e_intP(i,k,l,j)*get_energy_VP(k,l));
+					int u1 = k-i-1;
+					int u2 = j-l-1;
+					vp_iloop_kl *= scale[u1 + u2 + 2];	
+					contributions += vp_iloop_kl;				
 				}
 			}
 		}
@@ -474,23 +514,32 @@ void W_final_pf::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 		cand_pos_t max_i_bp = std::max(tree.B(i,j),tree.bp(i,j));
 
 		for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-			contributions += (get_energy_WIP(i+1,k-1)*get_energy_VP(k,j-1)*expap_penalty*pow(expbp_penalty,2)); // doing two more bp's -- one for VP and one for closing base pair I think?
+			pf_t m6 = (get_energy_WIP(i+1,k-1)*get_energy_VP(k,j-1)*expap_penalty*pow(expbp_penalty,2));
+			m6 *= scale[2];
+			contributions += m6; 
 		}
 		
 
 		for(cand_pos_t k = max_i_bp+1; k<j; ++k){
-			contributions += (get_energy_VP(i+1,k)*get_energy_WIP(k+1,j-1)*expap_penalty*pow(expbp_penalty,2));
+			pf_t m7 = (get_energy_VP(i+1,k)*get_energy_WIP(k+1,j-1)*expap_penalty*pow(expbp_penalty,2));
+			m7 *= scale[2];
+			contributions += m7;
 		}
 
 		for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-			contributions += (get_energy_WIP(i+1,k-1)*get_energy_VPR(k,j-1)*expap_penalty*pow(expbp_penalty,2));
+			pf_t m8 = (get_energy_WIP(i+1,k-1)*get_energy_VPR(k,j-1)*expap_penalty*pow(expbp_penalty,2));
+			m8 *= scale[2];
+			contributions += m8;
 		}
 
 		for(cand_pos_t k = max_i_bp+1; k<j; ++k){
-			contributions += (get_energy_VPL(i+1,k)*get_energy_WIP(k+1,j-1)*expap_penalty*pow(expbp_penalty,2));
+			pf_t m9 = (get_energy_VPL(i+1,k)*get_energy_WIP(k+1,j-1)*expap_penalty*pow(expbp_penalty,2));
+			m9 *= scale[2];
+			contributions += m9;
 		}
 
 	VP[ij] = contributions;
+	if(i==17 && j == 61) std::cout << "VP: " << ((-log(contributions) - 21 * log(exp_params_->pf_scale)) * exp_params_->kT / 1000.0) << std::endl;
 
 }
 
@@ -504,12 +553,14 @@ pf_t W_final_pf::get_e_stP(cand_pos_t i, cand_pos_t j){
 		return 0;
 	}
 	pf_t e_st = compute_int(i,j,i+1,j-1);
+
     return pow(e_st,e_stP_penalty); 
 }
 
 pf_t W_final_pf::get_e_intP(cand_pos_t i, cand_pos_t ip, cand_pos_t jp, cand_pos_t j){
 	if(ip==i+1 && jp==j-1) return 0;
     pf_t e_int = compute_int(i,j,ip,jp);
+
 	return pow(e_int,e_intP_penalty);
 }
 
@@ -603,6 +654,8 @@ void W_final_pf::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_
 	if (!( i >= 1 && i <= ip && ip < jp && jp <= j && j <= n && tree.tree[i].pair > 0 && tree.tree[j].pair > 0 && tree.tree[ip].pair > 0 && tree.tree[jp].pair > 0 && tree.tree[i].pair == j && tree.tree[j].pair == i && tree.tree[ip].pair == jp && tree.tree[jp].pair == ip)){ //impossible cases
 		return;
 	}
+	// (   (    (   )    )   ) //
+	// i   l    ip  jp   lp  j //
 	cand_pos_t iip = index[i]+ip-i;
     pf_t contributions = 0;
 	// base case: i.j and ip.jp must be in G
@@ -613,12 +666,16 @@ void W_final_pf::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_
 
 	// base case:
 	if(i == ip && j == jp && i<j){
-		BE[iip] = 1;
+
+		BE[iip] = scale[2];
 		return;
 	}
     
     if (tree.tree[i+1].pair == j-1){
-		contributions += get_e_stP(i,j)*get_BE(i+1,j-1,ip,jp,tree);
+		pf_t be_estp = get_e_stP(i,j)*get_BE(i+1,j-1,ip,jp,tree);
+		if(i==9 && j==26) std::cout << get_BE(i+1,j-1,ip,jp,tree) << std::endl;
+		be_estp *= scale[2];
+		contributions += be_estp;
 	}
 
 	for (cand_pos_t l = i+1; l<= ip ; l++){
@@ -634,22 +691,36 @@ void W_final_pf::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos_
 			bool weakly_closed_lpj = tree.weakly_closed(lp+1,j-1); // weakly closed between lp+1 and j-1
 
 			if (empty_region_il && empty_region_lpj){//&& !(ip == (i+1) && jp==(j-1)) && !(l == (i+1) && lp == (j-1))){
-                contributions += get_e_intP(i,l,lp,j)*get_BE(l,lp,ip,jp,tree); // Added to e_intP that l != i+1 and lp != j-1 at the same time
+				pf_t eintp = get_e_intP(i,l,lp,j)*get_BE(l,lp,ip,jp,tree);
+				int u1 = l-i-1;
+				int u2 = j-lp-1;
+				eintp *= scale[u1+u2+2];
+                contributions += eintp; // Added to e_intP that l != i+1 and lp != j-1 at the same time
 			}
 			if (weakly_closed_il && weakly_closed_lpj){
-                contributions += get_energy_WIP(i+1,l-1)*get_BE(l,lp,ip,jp,tree)*get_energy_WIP(lp+1,j-1)*expap_penalty*pow(expbp_penalty,2);
+				pf_t m3 = get_energy_WIP(i+1,l-1)*get_BE(l,lp,ip,jp,tree)*get_energy_WIP(lp+1,j-1)*expap_penalty*pow(expbp_penalty,2);
+				m3 *= scale[2];
+                contributions += m3;
 			}
 			if (weakly_closed_il && empty_region_lpj){
-                contributions += get_energy_WIP(i+1,l-1)*get_BE(l,lp,ip,jp,tree)*expcp_pen[j-lp+1]*expap_penalty*pow(bp_penalty,2);
+				pf_t m4 = get_energy_WIP(i+1,l-1)*get_BE(l,lp,ip,jp,tree)*expcp_pen[j-lp+1]*expap_penalty*pow(bp_penalty,2);
+				m4*=scale[2];
+                contributions += m4;
+				// contributions += get_energy_WIP(i+1,l-1)*get_BE(l,lp,ip,jp,tree)*static_cast<pf_t>(pow(expcp_penalty,jp-1+1))*expap_penalty*pow(bp_penalty,2);
 			}
 			if (empty_region_il && weakly_closed_lpj){
-                contributions += expcp_pen[l-i+1]*get_BE(l,lp,ip,jp,tree)*get_energy_WIP(lp+1,j-1)*expap_penalty*pow(bp_penalty,2);
+				pf_t m5 = expcp_pen[l-i+1]*get_BE(l,lp,ip,jp,tree)*get_energy_WIP(lp+1,j-1)*expap_penalty*pow(bp_penalty,2);
+				m5 *= scale[2];
+                contributions += m5;
+				// contributions += static_cast<pf_t>(pow(expcp_penalty,l-i+1))*get_BE(l,lp,ip,jp,tree)*get_energy_WIP(lp+1,j-1)*expap_penalty*pow(bp_penalty,2);
+
 			}
 		}
 	}
 
-
 	BE[iip] = contributions;
+	if(i==1 && ip == 10) std::cout << "BE: " << ((-log(contributions) - 20 * log(exp_params_->pf_scale)) * exp_params_->kT / 1000.0) << std::endl;
+	if(i==39 && ip == 48) std::cout << "BE: " << ((-log(contributions) - 20 * log(exp_params_->pf_scale)) * exp_params_->kT / 1000.0) << std::endl;
 }
 
 

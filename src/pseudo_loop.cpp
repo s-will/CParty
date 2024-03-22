@@ -312,6 +312,7 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	energy_t min = std::min({vp_h,vp_iloop,vp_split});
 
 	VP[ij] = min;
+	if(i==17 && j == 61) std::cout << "VP: " << min << std::endl;
 
 	
 }
@@ -548,6 +549,8 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 
 	// finding the min and putting it in BE[iip]
 	BE[iip] = std::min({m1,m2,m3,m4,m5});
+	if(i==1 && ip == 10) std::cout << "BE: " << BE[iip] << std::endl;
+	if(i==39 && ip == 48) std::cout << "BE: " << BE[iip] << std::endl;
 
 }
 

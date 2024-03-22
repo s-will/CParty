@@ -44,9 +44,9 @@ class W_final_pf{
         // Hosna, March 16, 2012,
         // i and j should be at least 3 bases apart
             if (j-i>= TURN && i >= 1 && i <= ip && ip < jp && jp <= j && j <=n && tree.tree[i].pair >=0 && tree.tree[j].pair >= 0 && tree.tree[ip].pair >= 0 && tree.tree[jp].pair >= 0 && tree.tree[i].pair == j && tree.tree[j].pair == i && tree.tree[ip].pair == jp && tree.tree[jp].pair == ip){
-                if(i == ip && j == jp && i<j){
-                    return 1;
-                }
+                // if(i == ip && j == jp && i<j){
+                //     return 1;
+                // }
                 cand_pos_t iip = index[i]+ip-i;
 
                 return BE[iip];
@@ -84,6 +84,7 @@ class W_final_pf{
         std::vector<pf_t> scale;
         std::vector<pf_t> expMLbase;
         std::vector<pf_t> expcp_pen;
+        std::vector<pf_t> expPUP_pen;
 
         void rescale_pk_globals();
 
