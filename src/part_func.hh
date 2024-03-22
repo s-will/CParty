@@ -83,6 +83,7 @@ class W_final_pf{
 
         std::vector<pf_t> scale;
         std::vector<pf_t> expMLbase;
+        std::vector<pf_t> expcp_pen;
 
         void rescale_pk_globals();
 
