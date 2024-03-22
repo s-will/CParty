@@ -17,7 +17,7 @@ extern "C" {
 class W_final_pf{
 
     public:
-        W_final_pf(std::string seq,bool pk_only, int dangle);
+        W_final_pf(std::string seq,bool pk_only, int dangle, double energy);
         // constructor for the restricted mfe case
 
         ~W_final_pf ();
@@ -81,7 +81,12 @@ class W_final_pf{
         std::vector<pf_t> WIP;				// the loop corresponding to WI'
         std::vector<pf_t> BE;				// the loop corresponding to BE
 
+        std::vector<pf_t> scale;
+        std::vector<pf_t> expMLbase;
+
         void rescale_pk_globals();
+
+        void exp_params_rescale(double mfe);
 
         void compute_energy_restricted(cand_pos_t i,cand_pos_t j,sparse_tree &tree);
 

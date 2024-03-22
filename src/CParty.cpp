@@ -78,8 +78,8 @@ std::string hfold(std::string seq,std::string res, double &energy, sparse_tree &
     return structure;
 }
 
-double hfold_pf(std::string seq, sparse_tree &tree, bool pk_free, int dangles){
-	W_final_pf min_fold(seq, pk_free,dangles);
+double hfold_pf(std::string seq, sparse_tree &tree, bool pk_free, int dangles, double min_en){
+	W_final_pf min_fold(seq, pk_free,dangles,min_en);
 	double energy = min_fold.hfold_pf(tree);
     return energy;
 }
@@ -164,7 +164,7 @@ int main (int argc, char *argv[])
 
 		sparse_tree tree(structure,n);
 		std::string final_structure = hfold(seq,structure, energy,tree,pk_free,pk_only, dangles);
-		double pf_energy = hfold_pf(seq,tree,pk_free,dangles);
+		double pf_energy = hfold_pf(seq,tree,pk_free,dangles,energy);
 		
 		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy,pf_energy);
 		result_list.push_back(result);
