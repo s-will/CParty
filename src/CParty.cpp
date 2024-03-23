@@ -197,6 +197,7 @@ Result::Result_comp result_comp;
 		std::cout << seq << std::endl;
 		if(result_list.size() == 1){
 			// std::cout << "Restricted_" << 0 << ": " << result_list[0].get_restricted() << std::endl;;
+			// std::cout << result_list[0].get_pf_energy() << std::endl;
 			std::cout << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ") {" << result_list[0].get_pf_energy() << "}" << std::endl;
 		}
 		else{

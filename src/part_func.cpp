@@ -281,7 +281,7 @@ void W_final_pf::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, spars
 		contributions += (get_energy_WM(i,k-1)*get_energy(k,j)*exp_MLstem(k,j));
 		contributions += (get_energy_WM(i,k-1)*get_energy_WMB(k,j)*expPSM_penalty*expb_penalty);
 	}
-	if (tree.tree[j].pair < 0) contributions += WM[ijminus1]*exp_params_->expMLbase;
+	if (tree.tree[j].pair < 0) contributions += WM[ijminus1]*expMLbase[1];
 
 
     WM[ij] = contributions;
