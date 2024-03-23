@@ -312,8 +312,6 @@ void pseudo_loop::compute_VP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	energy_t min = std::min({vp_h,vp_iloop,vp_split});
 
 	VP[ij] = min;
-	if(i==17 && j == 61) std::cout << "VP: " << min << std::endl;
-
 	
 }
 
@@ -443,9 +441,6 @@ void pseudo_loop::compute_WMB(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 			cand_pos_t Bp_lj = tree.Bp(l,j);
 
 			if (Bp_lj >= 0 && Bp_lj<n){
-				// if(i==1 && j==51) printf("i is %d and j is %d and wmbp is %d and wi is %d and be is %d\n",i,j,get_WMBP(i,l,tree), get_WI(l+1,Bp_lj-1,tree),get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree));
-				// if(i==1 && j==51) printf("i is %d and j is %d and bpj is %d and Bplj is %d and Bpljpair is %d\n",i,j,bp_j,Bp_lj,tree.tree[Bp_lj].pair);
-
 				energy_t sum = get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree) + get_WMBP(i,l) + get_WI(l+1,Bp_lj-1);
 				temp = std::min(temp,sum);
 			}
@@ -549,9 +544,6 @@ void pseudo_loop::compute_BE(cand_pos_t i, cand_pos_t j, cand_pos_t ip, cand_pos
 
 	// finding the min and putting it in BE[iip]
 	BE[iip] = std::min({m1,m2,m3,m4,m5});
-	if(i==1 && ip == 10) std::cout << "BE: " << BE[iip] << std::endl;
-	if(i==39 && ip == 48) std::cout << "BE: " << BE[iip] << std::endl;
-
 }
 
 energy_t pseudo_loop::get_WI(cand_pos_t i, cand_pos_t j){
