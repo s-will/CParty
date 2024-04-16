@@ -164,6 +164,9 @@ int main (int argc, char *argv[])
 
 		sparse_tree tree(structure,n);
 		std::string final_structure = hfold(seq,structure, energy,tree,pk_free,pk_only, dangles);
+		// std::cout << final_structure << std::endl;
+		// std::cout << energy << std::endl;
+
 		double pf_energy = hfold_pf(seq,tree,pk_free,dangles,energy);
 		
 		Result result(seq,hotspot_list[i].get_structure(),hotspot_list[i].get_energy(),final_structure,energy,pf_energy);
@@ -172,7 +175,7 @@ int main (int argc, char *argv[])
 
     
 
-Result::Result_comp result_comp;
+	Result::Result_comp result_comp;
 	std::sort(result_list.begin(), result_list.end(),result_comp );
 
 	int number_of_output = 1;

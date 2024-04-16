@@ -33,7 +33,7 @@ W_final::W_final(std::string seq,std::string res,bool pk_free, bool pk_only, int
 W_final::~W_final()
 {
 	delete WMB;
-	delete V;
+	// delete V;
 	delete [] f;
 	free(params_);
 	free(S_);
