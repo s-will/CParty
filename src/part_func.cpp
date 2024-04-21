@@ -338,7 +338,7 @@ void W_final_pf::compute_pk_energies(cand_pos_t i,cand_pos_t j,sparse_tree &tree
 	else{
 		if(ptype_closing>0 && tree.tree[i].pair < -1 && tree.tree[j].pair < -1) compute_VP(i,j,tree);
 		if(tree.tree[j].pair < -1) compute_VPL(i,j,tree);
-		if(tree.tree[j].pair < j)compute_VPR(i,j,tree);
+		if(tree.tree[j].pair < j) compute_VPR(i,j,tree);
 	}
 
 	if (!((j-i-1) <= TURN || (tree.tree[i].pair >= -1 && tree.tree[i].pair > j) || (tree.tree[j].pair >= -1 && tree.tree[j].pair < i) || (tree.tree[i].pair >= -1 && tree.tree[i].pair < i ) || (tree.tree[j].pair >= -1 && j < tree.tree[j].pair))){
@@ -559,16 +559,19 @@ void W_final_pf::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
     pf_t contributions = 0;
 
     if (tree.tree[j].pair < 0){
+		cand_pos_t b_ij = tree.b(i,j);
         for (cand_pos_t l = i+1; l<j ; l++)	{
             cand_pos_t bp_il = tree.bp(i,l);
             cand_pos_t Bp_lj = tree.Bp(l,j);
-            if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ 
-                cand_pos_t B_lj = tree.B(l,j);
-                if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-					pf_t m1 = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)*get_energy_WMBP(i,l-1)*get_energy_VP(l,j)*pow(expPB_penalty,2);
-                    contributions += m1;
-                }
-            }			
+			if(b_ij > 0 && l < b_ij){
+				if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ 
+					cand_pos_t B_lj = tree.B(l,j);
+					if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
+						pf_t m1 = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)*get_energy_WMBP(i,l-1)*get_energy_VP(l,j)*pow(expPB_penalty,2);
+						contributions += m1;
+					}
+				}
+			}			
         }
     }
 

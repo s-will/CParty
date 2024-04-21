@@ -1,3 +1,4 @@
+#define NDEBUG
 #include "sparse_tree.hh"
 #include <iomanip>
 #include <vector>
@@ -21,7 +22,6 @@ sparse_tree::sparse_tree(std::string structure,int n){
     preprocess();
     ptr = 0;
 
-    int cur = 1;
     dfs(0,-1,0);
     // depthArr.resize(euler.size());
     makeArr();

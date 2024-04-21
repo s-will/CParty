@@ -305,16 +305,20 @@ energy_t s_energy_matrix::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t
         // energy_t WM2ijm1 = get_energy_WM(i+1,k) + get_energy_WM(k+1,j-2);
         // energy_t WM2ip1jm1 = get_energy_WM(i+2,k) + get_energy_WM(k+1,j-2);
 
-        energy_t WM2ij = get_energy_WM(i+1,k-1) + std::min(get_energy_WMv(k,j-1),get_energy_WMp(k,j-1));
+        energy_t WM2ij = get_energy_WM(i+1,k-1) + get_energy_WMv(k,j-1);
+		WM2ij = std::min(WM2ij,get_energy_WM(i+1,k-1) + get_energy_WMp(k,j-1));
 		WM2ij = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k,j-1));
 
-        energy_t WM2ip1j = get_energy_WM(i+2-1,k-1) + std::min(get_energy_WMv(k-1,j-1-1),get_energy_WMp(k-1,j-1-1));
+        energy_t WM2ip1j = get_energy_WM(i+2-1,k-1) + get_energy_WMv(k-1,j-1-1);
+		WM2ip1j = std::min(WM2ip1j,get_energy_WM(i+2-1,k-1) + get_energy_WMp(k-1,j-1-1));
 		if((k-(i+1)-1) >=0) WM2ip1j = std::min(WM2ip1j,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k,j-1));
 
-        energy_t WM2ijm1 = get_energy_WM(i+1,k-1) + std::min(get_energy_WMv(k,j-2),get_energy_WMp(k,j-2));
+        energy_t WM2ijm1 = get_energy_WM(i+1,k-1) + get_energy_WMv(k,j-2);
+		WM2ijm1 = std::min(WM2ijm1, get_energy_WM(i+1,k-1) + get_energy_WMp(k,j-2));
 		WM2ijm1 = std::min(WM2ijm1,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k,j-2));
 
-        energy_t WM2ip1jm1 = get_energy_WM(i+2,k-1) + std::min(get_energy_WMv(k,j-2),get_energy_WMp(k,j-2));
+        energy_t WM2ip1jm1 = get_energy_WM(i+2,k-1) + get_energy_WMv(k,j-2);
+		WM2ip1jm1 = std::min(WM2ip1jm1,get_energy_WM(i+2,k-1) + get_energy_WMp(k,j-2));
 		if((k-(i+1)-1) >=0) WM2ip1jm1 = std::min(WM2ip1jm1,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k,j-2));
 
         min = std::min(min,E_MbLoop(WM2ij,WM2ip1j,WM2ijm1,WM2ip1jm1,S_,params_,i,j,tree));

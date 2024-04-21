@@ -70,12 +70,10 @@ void pseudo_loop::compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree
 	else{
 		if(ptype_closing>0 && tree.tree[i].pair < -1 && tree.tree[j].pair < -1) compute_VP(i,j,tree);
 		
-		compute_VPL(i,j,tree);
+		if(tree.tree[j].pair < -1) compute_VPL(i,j,tree);
 
-		compute_VPR(i,j,tree);
+		if(tree.tree[j].pair < j) compute_VPR(i,j,tree);
 	}
-	
-
 
 	if (!((j-i-1) <= TURN || (tree.tree[i].pair >= -1 && tree.tree[i].pair > j) || (tree.tree[j].pair >= -1 && tree.tree[j].pair < i) || (tree.tree[i].pair >= -1 && tree.tree[i].pair < i ) || (tree.tree[j].pair >= -1 && j < tree.tree[j].pair))){
 		compute_WMBW(i,j,tree);
@@ -339,6 +337,7 @@ void pseudo_loop::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	// 1)
 	if (tree.tree[j].pair < 0){
 		energy_t tmp = INF;
+		cand_pos_t b_ij = tree.b(i,j);
 		for (cand_pos_t l = i+1; l<j ; l++)	{
 			// Hosna, April 6th, 2007
 			// whenever we use get_borders we have to check for the correct values
@@ -346,14 +345,16 @@ void pseudo_loop::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 			cand_pos_t Bp_lj = tree.Bp(l,j);
 			// Hosna: April 19th, 2007
 			// the chosen l should be less than border_b(i,j) -- should be greater than border_b(i,l)
-			if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ // bp(i,l) < l < Bp(l,j)
-				cand_pos_t B_lj = tree.B(l,j);
+			if(b_ij > 0 && l < b_ij){
+				if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ // bp(i,l) < l < Bp(l,j)
+					cand_pos_t B_lj = tree.B(l,j);
 
-				// Hosna: July 5th, 2007:
-				// as long as we have i <= arc(l)< j we are fine
-				if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-					energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
-					tmp = std::min(tmp,sum);
+					// Hosna: July 5th, 2007:
+					// as long as we have i <= arc(l)< j we are fine
+					if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
+						energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
+						tmp = std::min(tmp,sum);
+					}
 				}
 			}
 			
@@ -431,9 +432,8 @@ void pseudo_loop::compute_WMB(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 	// added impossible cases
 	energy_t m2 = INF, mWMBP = INF;
 	// 2)
-	if (tree.tree[j].pair >= 0 && j > tree.tree[j].pair){
+	if (tree.tree[j].pair >= 0 && j > tree.tree[j].pair && tree.tree[j].pair > i){
 		cand_pos_t bp_j = tree.tree[j].pair;
-		energy_t temp = INF;
 		for (cand_pos_t l = (bp_j +1); (l < j); l++){
 			// Hosna: April 24, 2007
 			// correct case 2 such that a multi-pseudoknotted
@@ -442,11 +442,11 @@ void pseudo_loop::compute_WMB(cand_pos_t  i, cand_pos_t  j, sparse_tree &tree){
 
 			if (Bp_lj >= 0 && Bp_lj<n){
 				energy_t sum = get_BE(bp_j,j,tree.tree[Bp_lj].pair,Bp_lj,tree) + get_WMBP(i,l) + get_WI(l+1,Bp_lj-1);
-				temp = std::min(temp,sum);
+				m2 = std::min(m2,sum);
 			}
 
 		}
-		m2 = PB_penalty + temp;
+		m2 += PB_penalty;
 	}
 
 	// check the WMBP value
@@ -737,18 +737,20 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 				if (tree.tree[j].pair < 0){
 					energy_t acc = INF;
 					cand_pos_t l3 = -1;
+					cand_pos_t b_ij = tree.b(i,j);
 					for (cand_pos_t l = i+1; l<j ; l++)	{
 						cand_pos_t bp_il = tree.bp(i,l);
 						cand_pos_t Bp_lj = tree.Bp(l,j);
-
-						if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ // bp(i,l) < l < Bp(l,j)
-	
-							cand_pos_t B_lj = tree.B(l,j);
-							if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-								energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
-								if (acc > sum){
-									acc = sum;
-									l3 = l;
+						if(b_ij > 0 && l < b_ij){
+							if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ // bp(i,l) < l < Bp(l,j)
+		
+								cand_pos_t B_lj = tree.B(l,j);
+								if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
+									energy_t sum = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)+ get_WMBP(i,l-1)+ get_VP(l,j);
+									if (acc > sum){
+										acc = sum;
+										l3 = l;
+									}
 								}
 							}
 						}
