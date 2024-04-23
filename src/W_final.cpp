@@ -635,6 +635,7 @@ void W_final::backtrack_restricted(seq_interval *cur_interval, sparse_tree &tree
 
 			  for (cand_pos_t k=i; k <= j-TURN-1; k++)
 				{	energy_t m1 = INF,m2 = INF;
+					energy_t wm_kj = V->E_MLStem(V->get_energy(k,j),V->get_energy(k+1,j),V->get_energy(k,j-1),V->get_energy(k+1,j-1),S_,params_,k,j,n,tree.tree);
 					bool can_pair = tree.up[k-1] >= (k-(i));
 					if(can_pair) m1 = static_cast<energy_t>((k-i)*params_->MLbase) + V->get_energy_WMv (k, j);
 					if (m1 < min){

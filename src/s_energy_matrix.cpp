@@ -272,15 +272,15 @@ void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, 
     if(j-i+1<4) return;
 	energy_t m1 = INF,m2=INF,m3=INF,m4=INF,m5=INF;
     // ++j;
-	cand_pos_t ij = index[(i)]+(j)-(i);
-	cand_pos_t ijminus1 = index[(i)]+(j)-1-(i);
+	cand_pos_t ij = index[i]+j-i;
+	cand_pos_t ijminus1 = index[i]+(j-1)-i;
 
-	for (cand_pos_t k=i; k < j -TURN-1; k++)
+	for (cand_pos_t k=j-TURN-1; k >= i; --k)
 	{
 		energy_t wm_kj = E_MLStem(get_energy(k,j),get_energy(k+1,j),get_energy(k,j-1),get_energy(k+1,j-1),S_,params_,k,j,n,tree.tree);
 		bool can_pair = tree.up[k-1] >= (k-i);
-		cand_pos_t ik = index[(i)]+(k)-(i);
-		cand_pos_t kplus1j = index[(k)+1]+(j)-(k)-1;
+		cand_pos_t ik = index[i]+k-i;
+		cand_pos_t kplus1j = index[k+1]+j-k-1;
 		if(can_pair) m1 = std::min(m1,static_cast<energy_t>((k-i)*params_->MLbase) + wm_kj);
 		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMp(k,j));
 		m3 =  std::min(m3,get_energy_WM(i,k-1) + wm_kj);
@@ -304,7 +304,7 @@ energy_t s_energy_matrix::compute_energy_VM_restricted (cand_pos_t i, cand_pos_t
 		WM2ij = std::min(WM2ij,get_energy_WM(i+1,k-1) + get_energy_WMp(k,j-1));
 		if(tree.up[k-1] >= (k-(i+1)))WM2ij = std::min(WM2ij,static_cast<energy_t>((k-i-1)*params_->MLbase) + get_energy_WMp(k,j-1));
 
-        energy_t WM2ip1j = get_energy_WM(i+2,k-1) + get_energy_WMv(k-1,j-1);
+        energy_t WM2ip1j = get_energy_WM(i+2,k-1) + get_energy_WMv(k,j-1);
 		WM2ip1j = std::min(WM2ip1j,get_energy_WM(i+2,k-1) + get_energy_WMp(k-1,j-1));
 		if(tree.up[k-1] >= (k-(i+1))) WM2ip1j = std::min(WM2ip1j,static_cast<energy_t>((k-(i+1)-1)*params_->MLbase) + get_energy_WMp(k,j-1));
 
