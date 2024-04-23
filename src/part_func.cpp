@@ -408,7 +408,8 @@ void W_final_pf::compute_VPL(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 
 	cand_pos_t min_Bp_j = std::min((cand_pos_tu) tree.b(i,j), (cand_pos_tu) tree.Bp(i,j));
 	for(cand_pos_t k = i+1; k<min_Bp_j; ++k){
-		contributions += (expcp_pen[k-i]*get_energy_VP(k,j));
+		bool can_pair = tree.up[k-1] >= (k-i);
+		if(can_pair) contributions += (expcp_pen[k-i]*get_energy_VP(k,j));
 	}
 	VPL[ij] = contributions;
 }
@@ -419,8 +420,9 @@ void W_final_pf::compute_VPR(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
 	pf_t contributions = 0;
 	cand_pos_t max_i_bp = std::max(tree.B(i,j),tree.bp(i,j));
 	for(cand_pos_t k = max_i_bp+1; k<j; ++k){
+		bool can_pair = tree.up[j-1] >= (j-k);
 		contributions += (get_energy_VP(i,k)*get_energy_WIP(k+1,j));
-		contributions += (get_energy_VP(i,k)*expcp_pen[k-i]);
+		if(can_pair) contributions += (get_energy_VP(i,k)*expcp_pen[k-i]);
 
 	}
 	VPR[ij] = contributions;
@@ -576,16 +578,19 @@ void W_final_pf::compute_WMBP(cand_pos_t i, cand_pos_t j, sparse_tree &tree){
     }
 
     if (tree.tree[j].pair < 0){
+		cand_pos_t b_ij = tree.b(i,j);
         for (cand_pos_t l = i+1; l<j ; l++)	{
             cand_pos_t bp_il = tree.bp(i,l);
             cand_pos_t Bp_lj = tree.Bp(l,j);
-            if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ 
-                cand_pos_t B_lj = tree.B(l,j);
-                if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
-					pf_t m2 = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)*get_energy_WMBW(i,l-1)*get_energy_VP(l,j)*pow(expPB_penalty,2);
-                    contributions += m2;
-                }
-            }     
+			if(b_ij>0 && l<b_ij){
+				if (bp_il >= 0 && l>bp_il && Bp_lj > 0 && l<Bp_lj){ 
+					cand_pos_t B_lj = tree.B(l,j);
+					if (i <= tree.tree[l].parent->index && tree.tree[l].parent->index < j && l+TURN <=j){
+						pf_t m2 = get_BE(tree.tree[B_lj].pair,B_lj,tree.tree[Bp_lj].pair,Bp_lj,tree)*get_energy_WMBW(i,l-1)*get_energy_VP(l,j)*pow(expPB_penalty,2);
+						contributions += m2;
+					}
+				}   
+			}  
         }
 	}
 

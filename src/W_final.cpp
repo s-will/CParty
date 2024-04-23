@@ -33,7 +33,7 @@ W_final::W_final(std::string seq,std::string res,bool pk_free, bool pk_only, int
 W_final::~W_final()
 {
 	delete WMB;
-	// delete V;
+	delete V;
 	delete [] f;
 	free(params_);
 	free(S_);
@@ -78,7 +78,7 @@ double W_final::hfold(sparse_tree &tree){
 
 
 				V->compute_WMv_WMp(i,j,WMB->get_WMB(i,j),tree.tree);
-				V->compute_energy_WM_restricted(i,j,WMB->get_WMB(i,j),tree);
+				V->compute_energy_WM_restricted(i,j,tree);
 			}
 
 		}
