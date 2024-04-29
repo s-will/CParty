@@ -266,7 +266,7 @@ void s_energy_matrix::compute_WMv_WMp(cand_pos_t i, cand_pos_t j, energy_t WMB, 
 	}
 }
 
-void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, sparse_tree &tree)
+void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, sparse_tree &tree, std::vector<energy_t> &WMB)
 // compute de MFE of a partial multi-loop closed at (i,j), the restricted case
 {
     if(j-i+1<4) return;
@@ -274,17 +274,17 @@ void s_energy_matrix::compute_energy_WM_restricted (cand_pos_t i, cand_pos_t j, 
     // ++j;
 	cand_pos_t ij = index[i]+j-i;
 	cand_pos_t ijminus1 = index[i]+(j-1)-i;
-
+	
 	for (cand_pos_t k=j-TURN-1; k >= i; --k)
 	{
+		cand_pos_t kj = index[k]+j-k;
 		energy_t wm_kj = E_MLStem(get_energy(k,j),get_energy(k+1,j),get_energy(k,j-1),get_energy(k+1,j-1),S_,params_,k,j,n,tree.tree);
+		energy_t wmb_kj = WMB[kj]+PSM_penalty+b_penalty;
 		bool can_pair = tree.up[k-1] >= (k-i);
-		cand_pos_t ik = index[i]+k-i;
-		cand_pos_t kplus1j = index[k+1]+j-k-1;
 		if(can_pair) m1 = std::min(m1,static_cast<energy_t>((k-i)*params_->MLbase) + wm_kj);
-		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + get_energy_WMp(k,j));
+		if(can_pair) m2 = std::min(m2,static_cast<energy_t>((k-i)*params_->MLbase) + wmb_kj);
 		m3 =  std::min(m3,get_energy_WM(i,k-1) + wm_kj);
-		m4 =  std::min(m4,get_energy_WM(i,k-1) + get_energy_WMp(k,j));
+		m4 =  std::min(m4,get_energy_WM(i,k-1) + wmb_kj);
 
 	}
 	WM[ij] = std::min({m1,m2,m3,m4});

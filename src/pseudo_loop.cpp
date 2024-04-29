@@ -72,7 +72,7 @@ void pseudo_loop::compute_energies(cand_pos_t i, cand_pos_t j, sparse_tree &tree
 		
 		if(tree.tree[j].pair < -1) compute_VPL(i,j,tree);
 
-		// if(tree.tree[j].pair < j) compute_VPR(i,j,tree);
+		if(tree.tree[j].pair < j) compute_VPR(i,j,tree);
 	}
 
 	if (!((j-i-1) <= TURN || (tree.tree[i].pair >= -1 && tree.tree[i].pair > j) || (tree.tree[j].pair >= -1 && tree.tree[j].pair < i) || (tree.tree[i].pair >= -1 && tree.tree[i].pair < i ) || (tree.tree[j].pair >= -1 && j < tree.tree[j].pair))){
@@ -639,7 +639,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 {
 	this->structure = structure;
 	this->f = f;
-
+	// printf("At %c at %d and %d\n",cur_interval->type,cur_interval->i,cur_interval->j);
 	// changing the nested if structure to switch for optimality
 	switch (cur_interval->type)
 	{
@@ -1169,7 +1169,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 			energy_t min = INF, tmp = INF;
 			cand_pos_t best_row = -1, best_t= -1;
 
-				tmp = V->get_energy(i,j-1) + PPS_penalty;
+				tmp = V->get_energy(i,j) + PPS_penalty;
 				if(tmp<min){
 					min = tmp;
 					best_row = 1;
@@ -1218,7 +1218,7 @@ void pseudo_loop::back_track(std::string structure, minimum_fold *f, seq_interva
 
 				case 2:
 					if (i < j){
-						insert_node(i,j-1,P_WMB);
+						insert_node(i,j,P_WMB);
 					}
 					break;
 				case 3:
