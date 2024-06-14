@@ -134,6 +134,7 @@ int main (int argc, char *argv[])
 		}
 		
 	}
+	if(pk_free) if(restricted == "") restricted = std::string('.',n);
 
 	// std::string file = "src/params/parameters_DP09_Vienna.txt";
     // vrna_params_load(file.c_str(), VRNA_PARAMETER_FORMAT_DEFAULT);
@@ -164,8 +165,6 @@ int main (int argc, char *argv[])
 
 		sparse_tree tree(structure,n);
 		std::string final_structure = hfold(seq,structure, energy,tree,pk_free,pk_only, dangles);
-		// std::cout << final_structure << std::endl;
-		// std::cout << energy << std::endl;
 
 		double pf_energy = hfold_pf(seq,tree,pk_free,dangles,energy);
 		
@@ -183,14 +182,14 @@ int main (int argc, char *argv[])
 	if(number_of_suboptimal_structure != 1){
 			number_of_output = std::min( (int) result_list.size(),number_of_suboptimal_structure);
 	}
-
 	//output to file
 	if(fileO != ""){
 		std::ofstream out(fileO);
 		out << seq << std::endl;
 		for (int i=0; i < number_of_output; i++) {
-			out << "Restricted_" << i << ": " << result_list[i].get_restricted() << std::endl;;
-			out << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ")" << std::endl;	
+			if(result_list[i].get_final_structure() == result_list[i-1].get_final_structure()) continue;
+			out << "Restricted_" << i << ": " << result_list[i].get_restricted() << " (" << result_list[i].get_restricted_energy() << ")" << std::endl;
+			out << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ") {" << result_list[i].get_pf_energy() << "}" << std::endl;
 		}
 
 	}else{
@@ -199,15 +198,13 @@ int main (int argc, char *argv[])
 		//changed format for ouptut to stdout
 		std::cout << seq << std::endl;
 		if(result_list.size() == 1){
-			// std::cout << "Restricted_" << 0 << ": " << result_list[0].get_restricted() << std::endl;;
-			// std::cout << result_list[0].get_pf_energy() << std::endl;
 			std::cout << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ") {" << result_list[0].get_pf_energy() << "}" << std::endl;
 		}
 		else{
 			for (int i=0; i < number_of_output; i++) {
 				if(result_list[i].get_final_structure() == result_list[i-1].get_final_structure()) continue;
-				std::cout << "Restricted_" << i << ": " << result_list[i].get_restricted() << std::endl;;
-				std::cout << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ")" << std::endl;
+				std::cout << "Restricted_" << i << ": " << result_list[i].get_restricted() << " (" << result_list[i].get_restricted_energy() << ")" << std::endl;
+				std::cout << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ") {" << result_list[i].get_pf_energy() << "}" << std::endl;
 			}
 		}
 	}

@@ -17,13 +17,13 @@ int subopt;
 
 static char *package_name = 0;
 
-const char *args_info_purpose = "Possibly pseudoknotted minimum free energy folding of RNAs";
+const char *args_info_purpose = "Possibly pseudoknotted partition function of RNAs";
 
-const char *args_info_usage = "Usage: Iterative-HFold"  "[options] [sequence]";
+const char *args_info_usage = "Usage: CParty"  "[options] [sequence]";
 
 const char *args_info_versiontext = "";
 
-const char *args_info_description = "Read RNA sequence from stdin or cmdline; predict minimum\nfree energy and optimum structure using the possibly pseuodknotted\nMFE RNA folding algorithm of Jabbari and Condon, 2014.";
+const char *args_info_description = "Read RNA sequence from stdin or cmdline; predict minimum\nfree energy, optimum structure, and ensemble energy using the possibly\npseuodknotted partiton function RNA folding algorithm";
 
 const char *args_info_help[] = {
   "  -h, --help             Print help and exit",
@@ -34,7 +34,7 @@ const char *args_info_help[] = {
   "  -o  --output-file      Give a path to an output file which will the sequence, and its structure and energy",
   "  -n, --opt              Specify the number of suboptimal structures to output (default is 1)",
   "  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated",
-  "  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added"
+  "  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added",
   "  -d  --dangles          Specify the dangle model to be used"
 
   "\nThe input sequence is read from standard input, unless it is\ngiven on the command line.\n",
