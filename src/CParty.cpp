@@ -123,7 +123,7 @@ int main (int argc, char *argv[])
 
 	int dangles = args_info.dangles_given ? dangle_model : 1;
 
-
+	cmdline_parser_free(&args_info);
 	if(fileI != ""){
 		
 		if(exists(fileI)){
@@ -186,7 +186,9 @@ int main (int argc, char *argv[])
 	if(fileO != ""){
 		std::ofstream out(fileO);
 		out << seq << std::endl;
-		for (int i=0; i < number_of_output; i++) {
+		out << "Restricted_" << 0 << ": " << result_list[0].get_restricted() << " (" << result_list[0].get_restricted_energy() << ")" << std::endl;
+		out << "Result_" << 0 << ":     " << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ") {" << result_list[0].get_pf_energy() << "}" << std::endl;
+		for (int i=1; i < number_of_output; i++) {
 			if(result_list[i].get_final_structure() == result_list[i-1].get_final_structure()) continue;
 			out << "Restricted_" << i << ": " << result_list[i].get_restricted() << " (" << result_list[i].get_restricted_energy() << ")" << std::endl;
 			out << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ") {" << result_list[i].get_pf_energy() << "}" << std::endl;
@@ -201,14 +203,15 @@ int main (int argc, char *argv[])
 			std::cout << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ") {" << result_list[0].get_pf_energy() << "}" << std::endl;
 		}
 		else{
-			for (int i=0; i < number_of_output; i++) {
+			std::cout << "Restricted_" << 0 << ": " << result_list[0].get_restricted() << " (" << result_list[0].get_restricted_energy() << ")" << std::endl;
+			std::cout << "Result_" << 0 << ":     " << result_list[0].get_final_structure() << " (" << result_list[0].get_final_energy() << ") {" << result_list[0].get_pf_energy() << "}" << std::endl;
+			for (int i=1; i < number_of_output; i++) {
 				if(result_list[i].get_final_structure() == result_list[i-1].get_final_structure()) continue;
 				std::cout << "Restricted_" << i << ": " << result_list[i].get_restricted() << " (" << result_list[i].get_restricted_energy() << ")" << std::endl;
 				std::cout << "Result_" << i << ":     " << result_list[i].get_final_structure() << " (" << result_list[i].get_final_energy() << ") {" << result_list[i].get_pf_energy() << "}" << std::endl;
 			}
 		}
 	}
-	cmdline_parser_free(&args_info);
 
     return 0;
 }
