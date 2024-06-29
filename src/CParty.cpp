@@ -59,7 +59,7 @@ void validateStructure(std::string sequence, std::string structure){
 void validateSequence(std::string sequence){
 
 	if(sequence.length() == 0){
-		std::cout << "sequence1 or sequence2 is missing" << std::endl;
+		std::cout << "sequence is missing" << std::endl;
 		exit(EXIT_FAILURE);
 	}
   // return false if any characters other than GCAUT -- future implement check based on type
@@ -100,9 +100,6 @@ int main (int argc, char *argv[])
 	} else {
 		if(!args_info.input_file_given) std::getline(std::cin,seq);
 	}
-	int n = seq.length();
-
-	validateSequence(seq);
 
 	std::string restricted;
     args_info.input_structure_given ? restricted = input_struct : restricted = "";
@@ -132,6 +129,8 @@ int main (int argc, char *argv[])
 		}
 		
 	}
+	int n = seq.length();
+	validateSequence(seq);
 
 	if(restricted != "") validateStructure(seq,restricted);
 	if(pk_free) if(restricted == "") restricted = std::string('.',n);

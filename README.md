@@ -109,7 +109,7 @@ Read input file from cmdline; predict minimum free energy, ensemble energy, and 
             Line2: Sequence
             Line3: Structure
         sample:
-            >Sequence1
+            >Sequence1 (optional)
             GCAACGAUGACAUACAUCGCUAGUCGACGC
             (............................)
 
@@ -119,9 +119,9 @@ Read input file from cmdline; predict minimum free energy, ensemble energy, and 
     ./build/CParty -i "/home/username/Desktop/myinputfile.txt" --o "outputfile.txt"
     ./build/CParty -r "(............................)" GCAACGAUGACAUACAUCGCUAGUCGACGC
     ./build/CParty -r "(((((.........................)))))................" -d2 GGGGGAAAAAAAGGGGGGGGGGAAAAAAAACCCCCAAAAAACCCCCCCCCC
-    ./build/CParty -p -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
-    ./build/CParty -n 3 -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
-    ./build/CParty -k -r "(____________________________)" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/CParty -p -r "(............................)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/CParty -n 3 -r "(............................)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/CParty -k -r "(............................)" GCAACGAUGACAUACAUCGCUAGUCGACGC
 
 
 
