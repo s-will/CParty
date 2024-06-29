@@ -56,68 +56,78 @@ If you need to specify a specific compiler, such as g++, you can instead run som
 cmake -H. -Bbuild -DCMAKE_CXX_COMPILER=g++
 cmake --build build
 ```   
-This can be useful if you are getting errors about your compiler not having C++11 features.
+This can be useful if you are getting errors about your compiler not having C++17 features.
 
-After installing you can move the executables wherever you wish, but you should not delete or move the simfold folder, or you must recompile the executables. If you move the folders and wish to recompile, you should first delete the created "build" folder before recompiling.
+Help
+========================================
+
+```
+Usage: CParty[options] [input sequence]
+```
+
+Read input file from cmdline; predict minimum free energy, ensemble energy, and optimum structure using the RNA folding algorithm.
+
+
+```
+  -h, --help             Print help and exit
+  -V, --version          Print version and exit
+  -r, --input-structure  Give a restricted structure as an input structure
+  -i, --input-file       Give a path to an input file containing the sequence (and input structure if known)
+  -o, --output-file      Give a path to an output file which will the sequence, and its structure and energy
+  -n, --opt              Specify the number of suboptimal structures to output (default is 1)
+  -p  --pk-free          Specify whether you only want the pseudoknot-free structure to be calculated
+  -k  --pk-only          Specify whether you only want the pseudoknotted base pairs to be added
+  -d  --dangles          Specify the dangle model to be used
+```
+
 
 #### How to use:
-    Arguments:
-        CParty:
-            -s <sequence>
-            -r <structure>
-            -i </path/to/file>
-            -o </path/to/file>
 
-        Remarks:
-            make sure the <arguments> are enclosed in "", for example -r "..().." instead of -r ..()..
-            input file for -i must be .txt
-            if -i is provided with just a file name without a path, it is assuming the file is in the diretory where the executable is called
-            if -o is provided with just a file name without a path, the output file will be generated in the diretory where the executable is called
-            if -o is provided with just a file name without a path, and if -i is provided, then the output file will be generated in the directory where the input file is located
+    Remarks:
+        make sure the <arguments> are enclosed in "", for example -r "..(...).." instead of -r ..(...)..
+        input file for -i must be .txt
+        if -i is provided with just a file name without a path, it is assuming the file is in the diretory where the executable is called
+        if -o is provided with just a file name without a path, the output file will be generated in the diretory where the executable is called
+        if -o is provided with just a file name without a path, and if -i is provided, then the output file will be generated in the directory where the input file is located
+        if suboptimal structures are specified, repeated structures are skipped. That is, if different input structures come to the same conclusion, only those that are different are shown
     
     Sequence requirements:
-        containing only characters GCAUT
+        containing only characters GCAU
 
     Structure requirements:
         -pseudoknot free
-        -containing only characters ._(){}[]
+        -containing only characters .x()
         Remarks:
             Restricted structure symbols:
                 () restricted base pair
-                _ no restriction
+                . no restriction
+                x restricted to unpaired
 
 
     Input file requirements:
-            Line1: Sequence
-            Line2: Structure
+            Line1: FASTA name (optional)
+            Line2: Sequence
+            Line3: Structure
         sample:
+            >Sequence1
             GCAACGAUGACAUACAUCGCUAGUCGACGC
-            (____________________________)
+            (............................)
 
 #### Example:
-    assume you are in the directory where the HFold executable is loacted
-    ./CParty --i "/home/username/Desktop/myinputfile.txt"
-    ./CParty --i "/home/username/Desktop/myinputfile.txt" --o "outputfile.txt"
-    ./CParty --i "/home/username/Desktop/myinputfile.txt" --o "/home/username/Desktop/some_folder/outputfile.txt"
-    ./CParty --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)"
-    ./CParty --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "outputfile.txt"
-    ./CParty --s "GCAACGAUGACAUACAUCGCUAGUCGACGC" --r "(____________________________)" --o "/home/username/Desktop/some_folder/outputfile.txt"
+    Assume you are in the CParty directory
+    ./build/CParty -i "/home/username/Desktop/myinputfile.txt"
+    ./build/CParty -i "/home/username/Desktop/myinputfile.txt" --o "outputfile.txt"
+    ./build/CParty -r "(............................)" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/CParty -r "(((((.........................)))))................" -d2 GGGGGAAAAAAAGGGGGGGGGGAAAAAAAACCCCCAAAAAACCCCCCCCCC
+    ./build/CParty -p -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/CParty -n 3 -r "(____________________________)" -o "/home/username/Desktop/some_folder/outputfile.txt" GCAACGAUGACAUACAUCGCUAGUCGACGC
+    ./build/CParty -k -r "(____________________________)" GCAACGAUGACAUACAUCGCUAGUCGACGC
+
+
 
 ### SARS-CoV-2 Example
-    ./CParty --s "UUUGCGGUGUAAGUGCAGCCCGUCUUACACCGUGCGGCACAGGCACUAGUACUGAUGUCGUAUACAGGGCU" --r "__(((((((((((__________)))))))))))_____________________________________"
+    ./build/CParty -r "..(((((((((((..........)))))))))))....................................." UUUGCGGUGUAAGUGCAGCCCGUCUUACACCGUGCGGCACAGGCACUAGUACUGAUGUCGUAUACAGGGCU
 
     
-#### Exit code:
-    0       success
-    1	    invalid argument error 
-    3	    thread error
-    4       i/o error
-    5       pipe error
-    error code with special meaning: http://tldp.org/LDP/abs/html/exitcodes.html
-    2	    Misuse of shell builtins (according to Bash documentation)
-    126	    Command invoked cannot execute
-    127	    "command not found"
-    128	    Invalid argument to exit	
-    128+n	Fatal error signal "n"
-    130	    Script terminated by Control-C
-    255	    Exit status out of range (range is 0-255)
+## Questions
+For questions, you can email mateo2@ualberta.ca

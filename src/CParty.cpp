@@ -107,8 +107,6 @@ int main (int argc, char *argv[])
 	std::string restricted;
     args_info.input_structure_given ? restricted = input_struct : restricted = "";
 
-	if(restricted != "") validateStructure(seq,restricted);
-
 	std::string fileI;
     args_info.input_file_given ? fileI = input_file : fileI = "";
 
@@ -134,6 +132,8 @@ int main (int argc, char *argv[])
 		}
 		
 	}
+
+	if(restricted != "") validateStructure(seq,restricted);
 	if(pk_free) if(restricted == "") restricted = std::string('.',n);
 
 	// std::string file = "src/params/parameters_DP09_Vienna.txt";
@@ -150,13 +150,12 @@ int main (int argc, char *argv[])
 		hotspot.set_structure(restricted);
 		hotspot_list.push_back(hotspot);
 	}
-	else {
+	if((number_of_suboptimal_structure-hotspot_list.size())>0) {
 		get_hotspots(seq, hotspot_list,number_of_suboptimal_structure,params);
 	}
 	free(params);
 	// Data structure for holding the output
 	std::vector<Result> result_list;
-
     //double min_energy;
 	// Iterate through all hotspots or the single given input structure
 	for(int i = 0;i<hotspot_list.size();++i){

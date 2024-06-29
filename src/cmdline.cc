@@ -28,7 +28,6 @@ const char *args_info_description = "Read RNA sequence from stdin or cmdline; pr
 const char *args_info_help[] = {
   "  -h, --help             Print help and exit",
   "  -V, --version          Print version and exit",
-  "  -v, --verbose          Give verbose output",
   "  -r, --input-structure  Give a restricted structure as an input structure",
   "  -i, --input-file       Give a path to an input file containing the sequence (and input structure if known)",
   "  -o  --output-file      Give a path to an output file which will the sequence, and its structure and energy",
@@ -54,19 +53,13 @@ static void init_args_info(struct args_info *args_info)
 {
   args_info->help_help = args_info_help[0] ;
   args_info->version_help = args_info_help[1] ;
-  args_info->verbose_help = args_info_help[2] ;
-  args_info->input_structure_help = args_info_help[3] ;
-  args_info->input_file_help = args_info_help[4] ;
-  args_info->output_file_help = args_info_help[5] ;
-  args_info->subopt_help = args_info_help[7] ;
-  args_info->pk_free_help = args_info_help[8] ;
-  args_info->pk_only_help = args_info_help[9] ;
-  args_info->dangles_help = args_info_help[10] ;
-
-
-
-
-  
+  args_info->input_structure_help = args_info_help[2] ;
+  args_info->input_file_help = args_info_help[3] ;
+  args_info->output_file_help = args_info_help[4] ;
+  args_info->subopt_help = args_info_help[5] ;
+  args_info->pk_free_help = args_info_help[6] ;
+  args_info->pk_only_help = args_info_help[7] ;
+  args_info->dangles_help = args_info_help[8] ;
 }
 void
 cmdline_parser_print_version (void)
@@ -112,7 +105,6 @@ static void clear_given (struct args_info *args_info)
 {
   args_info->help_given = 0 ;
   args_info->version_given = 0 ;
-  args_info->verbose_given = 0 ;
   args_info->input_structure_given = 0 ;
   args_info->input_file_given = 0 ;
   args_info->output_file_given = 0 ;
@@ -307,7 +299,6 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
       static struct option long_options[] = {
         { "help",	0, NULL, 'h' },
         { "version",	0, NULL, 'V' },
-        { "verbose",	0, NULL, 'v' },
         { "input-structure",	required_argument, NULL, 'r' },
         { "input-file",	required_argument, NULL, 'i' },
         { "ouput-file",	required_argument, NULL, 'o' },
@@ -318,7 +309,7 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
         { 0,  0, 0, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVvr:i:o:n:pkd:", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVr:i:o:n:pkd:", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -333,16 +324,6 @@ int cmdline_parser_internal (int argc, char **argv, struct args_info *args_info,
           cmdline_parser_print_version ();
           cmdline_parser_free (&local_args_info);
           exit (EXIT_SUCCESS);
-        
-        case 'v':	/* Turn on verbose output.  */
-        
-        
-          if (update_arg( 0 , 
-               0 , &(args_info->verbose_given),
-              &(local_args_info.verbose_given), optarg, 0, 0, ARG_NO,0, 0,"verbose", 'v',additional_error))
-            goto failure;
-        
-          break;
 
           case 'n':	/* Specify number of outputs.  */
         
