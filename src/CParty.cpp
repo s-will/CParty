@@ -84,6 +84,12 @@ double hfold_pf(std::string seq, sparse_tree &tree, bool pk_free, int dangles, d
     return energy;
 }
 
+void seqtoRNA(std::string &sequence){
+    for (char &c : sequence) {
+      	if (c == 'T') c = 'U';
+    }
+}
+
 
 int main (int argc, char *argv[])
 {
@@ -131,6 +137,7 @@ int main (int argc, char *argv[])
 	}
 	int n = seq.length();
 	std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+	if(!args_info.noConv_given) seqtoRNA(seq);
 	validateSequence(seq);
 
 	if(restricted != "") validateStructure(seq,restricted);
